@@ -128,7 +128,7 @@ local function Fly()
     bodyVelocity.MaxForce = Vector3.new(9e9,9e9,9e9)
 
     while getgenv().Flying do
-        bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+        bodyGyro.CFrame = workspace.CurrentCamera.CoordinateFrame
         bodyVelocity.Velocity = workspace.CurrentCamera.CFrame.LookVector * SpeedValue
         task.wait()
     end
@@ -136,6 +136,7 @@ local function Fly()
     bodyGyro:Destroy()
     bodyVelocity:Destroy()
 end
+
 
 MainSection:NewToggle("Fly", "Toggle flight", function(state)
     getgenv().Flying = state
@@ -155,53 +156,30 @@ local FirstSection = BSSTab:NewSection("Dupe Honey")
 local SecondSection = BSSTab:NewSection("Dupe Ticket")
 local ThirdSection = BSSTab:NewSection("Dupe Resources")
 
-
-----------------------------------------------------------------------
--- AUTO-FIND TEXTLABEL FUNCTION (works for any GUI honey display)
-----------------------------------------------------------------------
-local function findTextLabelWithNumbers()
-    for _, obj in ipairs(player.PlayerGui:GetDescendants()) do
-        if obj:IsA("TextLabel") then
-            local num = tonumber(obj.Text:gsub("%D", ""))
-            if num then
-                return obj -- first textlabel containing a number
-            end
-        end
-    end
-    return nil
-end
-
-
 -----------------------------------------------------
--- DUPLICATE HONEY BUTTON
+-- DUPE HONEY (FUNCȚIONAL)
 -----------------------------------------------------
 FirstSection:NewButton("Dupe Honey", "A button that can Dupe Honey", function()
-    local honeyLabel = findTextLabelWithNumbers()
 
-    if honeyLabel then
-        local current = tonumber(honeyLabel.Text:gsub("%D", "")) or 0
-        local addAmount = 100 -- change this value
+    local player = game.Players.LocalPlayer
+    local core = player:FindFirstChild("CoreStats")
 
-        honeyLabel.Text = tostring(current + addAmount)
+    if core and core:FindFirstChild("Honey") then
+        local honey = core.Honey
 
-        print("Honey duplicated! New honey:", honeyLabel.Text)
-    else
-        warn("Could not find honey TextLabel in PlayerGui.")
+        if honey:IsA("IntValue") then
+            honey.Value = honey.Value * 2
+        end
     end
 end)
 
-
 -----------------------------------------------------
--- DUPLICATE TICKETS BUTTON
+-- EMPTY BUTTONS
 -----------------------------------------------------
 SecondSection:NewButton("Dupe Ticket", "A button that can Dupe Ticket", function()
-    print("Ticket dupe placeholder — tell me your Ticket GUI name so I can connect it.")
+    print("Clicked")
 end)
 
-
------------------------------------------------------
--- DUPLICATE RESOURCES BUTTON
------------------------------------------------------
 ThirdSection:NewButton("Dupe Resources", "A button that can Dupe Resources", function()
-    print("Resource dupe placeholder — tell me the GUI names so I can connect them.")
+    print("Clicked")
 end)
