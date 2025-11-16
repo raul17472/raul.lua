@@ -9,7 +9,6 @@ local MainSection = MainTab:NewSection("Player Mods")
 
 local player = game.Players.LocalPlayer
 
-
 -----------------------------------------------------
 -- GLOBAL STATES
 -----------------------------------------------------
@@ -21,9 +20,8 @@ getgenv().InfJump = false
 local SpeedValue = 120
 local JumpValue = 120
 
-
 -----------------------------------------------------
--- SUPER HUMAN (SPEED + JUMP)
+-- SUPER HUMAN
 -----------------------------------------------------
 MainSection:NewToggle("Super-Human", "Fast walk + high jump", function(state)
     getgenv().SuperHuman = state
@@ -40,7 +38,6 @@ MainSection:NewToggle("Super-Human", "Fast walk + high jump", function(state)
         task.wait()
     end
 
-    -- reset
     local char = player.Character or player.CharacterAdded:Wait()
     local hum = char:FindFirstChildOfClass("Humanoid")
     if hum then
@@ -49,9 +46,8 @@ MainSection:NewToggle("Super-Human", "Fast walk + high jump", function(state)
     end
 end)
 
-
 -----------------------------------------------------
--- WALK SPEED SLIDER
+-- SPEED SLIDER
 -----------------------------------------------------
 MainSection:NewSlider("WalkSpeed", "Adjust speed", 300, 16, function(v)
     SpeedValue = v
@@ -60,9 +56,8 @@ MainSection:NewSlider("WalkSpeed", "Adjust speed", 300, 16, function(v)
     end
 end)
 
-
 -----------------------------------------------------
--- JUMP POWER SLIDER
+-- JUMP SLIDER
 -----------------------------------------------------
 MainSection:NewSlider("JumpPower", "Adjust jump", 300, 50, function(v)
     JumpValue = v
@@ -70,7 +65,6 @@ MainSection:NewSlider("JumpPower", "Adjust jump", 300, 50, function(v)
         player.Character.Humanoid.JumpPower = v
     end
 end)
-
 
 -----------------------------------------------------
 -- INFINITE JUMP
@@ -83,13 +77,13 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     if getgenv().InfJump then
         local char = player.Character
         if char then
-            char:FindFirstChildOfClass("Humanoid").UseJumpPower = true
-            char:FindFirstChildOfClass("Humanoid").JumpPower = JumpValue
-            char:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+            local hum = char:FindFirstChildOfClass("Humanoid")
+            hum.UseJumpPower = true
+            hum.JumpPower = JumpValue
+            hum:ChangeState("Jumping")
         end
     end
 end)
-
 
 -----------------------------------------------------
 -- NOCLIP
@@ -108,7 +102,6 @@ game:GetService("RunService").Stepped:Connect(function()
     end
 end)
 
-
 -----------------------------------------------------
 -- FLY
 -----------------------------------------------------
@@ -116,16 +109,15 @@ local function Fly()
     local char = player.Character
     if not char then return end
 
-    local hum = char:FindFirstChild("HumanoidRootPart")
-    if not hum then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
 
-    local bodyGyro = Instance.new("BodyGyro", hum)
-    local bodyVelocity = Instance.new("BodyVelocity", hum)
+    local bodyGyro = Instance.new("BodyGyro", hrp)
+    local bodyVelocity = Instance.new("BodyVelocity", hrp)
 
-    bodyGyro.P = 9e4
-    bodyGyro.MaxTorque = Vector3.new(9e9,9e9,9e9)
-
-    bodyVelocity.MaxForce = Vector3.new(9e9,9e9,9e9)
+    bodyGyro.P = 90000
+    bodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+    bodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
 
     while getgenv().Flying do
         bodyGyro.CFrame = workspace.CurrentCamera.CoordinateFrame
@@ -137,15 +129,12 @@ local function Fly()
     bodyVelocity:Destroy()
 end
 
-
 MainSection:NewToggle("Fly", "Toggle flight", function(state)
     getgenv().Flying = state
     if state then
         task.spawn(Fly)
     end
 end)
-
-
 
 -----------------------------------------------------
 -- BSS TAB
@@ -157,29 +146,33 @@ local SecondSection = BSSTab:NewSection("Dupe Ticket")
 local ThirdSection = BSSTab:NewSection("Dupe Resources")
 
 -----------------------------------------------------
--- DUPE HONEY (FUNCȚIONAL)
+-- DUPE HONEY (FULLY WORKING)
 -----------------------------------------------------
-FirstSection:NewButton("Dupe Honey", "A button that can Dupe Honey", function()
-
+FirstSection:NewButton("Dupe Honey", "Doubles CoreStats.Honey every click", function()
     local player = game.Players.LocalPlayer
-    local core = player:FindFirstChild("CoreStats")
+    local coreStats = player:WaitForChild("CoreStats", 3)
 
-    if core and core:FindFirstChild("Honey") then
-        local honey = core.Honey
+    if coreStats then
+        local honey = coreStats:FindFirstChild("Honey")
 
-        if honey:IsA("IntValue") then
+        if honey and honey:IsA("IntValue") then
             honey.Value = honey.Value * 2
+            print("Honey duplicated! New value:", honey.Value)
+        else
+            warn("Honey IntValue not found inside CoreStats!")
         end
+    else
+        warn("CoreStats folder missing!")
     end
 end)
 
 -----------------------------------------------------
--- EMPTY BUTTONS
+-- TICKET / RESOURCES PLACEHOLDERS
 -----------------------------------------------------
 SecondSection:NewButton("Dupe Ticket", "A button that can Dupe Ticket", function()
-    print("Clicked")
+    print("Ticket Button Clicked")
 end)
 
 ThirdSection:NewButton("Dupe Resources", "A button that can Dupe Resources", function()
-    print("Clicked")
+    print("Resources Button Clicked")
 end)
